@@ -2,11 +2,18 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.dispatcher import FSMContext
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 import asyncio
 
-api = ''
+api = '7473045798:AAHyEHGVsLAncnXCH4suZ7QkMXbc6HRhEhk'
 bot = Bot(token=api)
 dp = Dispatcher(bot, storage=MemoryStorage())
+
+kb = ReplyKeyboardMarkup(resize_keyboard=True)
+button_1 = KeyboardButton(text='Рассчитать')
+button_2 = KeyboardButton(text='Информация')
+kb.add(button_1)
+kb.add(button_2)
 
 
 class UserState(StatesGroup):
@@ -15,7 +22,7 @@ class UserState(StatesGroup):
     weight = State()
 
 
-@dp.message_handler(text=['Calories'])
+@dp.message_handler(text=['Рассчитать'])
 async def set_age(message):
     await message.answer('Введите свой возраст:')
     await UserState.age.set()
@@ -34,6 +41,7 @@ async def set_weight(message, state):
     await message.answer('Введите свой вес:')
     await UserState.weight.set()
 
+
 @dp.message_handler(state=UserState.weight)
 async def send_calories(message, state):
     await state.update_data(weight=message.text)
@@ -41,6 +49,7 @@ async def send_calories(message, state):
     result = 10 * int(data['weight']) + 6.25 * int(data['growth']) - 5 * int(data['age']) + 5
     await message.answer(f'Ваша женская норма каллорий: {result}')
     await state.finish()
+
 
 '''Упрощенный вариант формулы Миффлина-Сан Жеора:
  
@@ -50,7 +59,7 @@ async def send_calories(message, state):
 
 @dp.message_handler(commands=['start'])
 async def start(message):
-    await message.answer('Привет! Я бот помогающий твоему здоровью. Введите "Calories"')
+    await message.answer('Привет! Я бот помогающий твоему здоровью', reply_markup=kb)
 
 
 @dp.message_handler()

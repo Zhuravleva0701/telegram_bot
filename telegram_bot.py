@@ -3,9 +3,10 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import asyncio
 
-api = ''
+api = '7361571091:AAHAIVN16fSACAHLd46v9TEf8wqA_2xEwKM'
 bot = Bot(token=api)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
@@ -15,6 +16,12 @@ button_2 = KeyboardButton(text='Информация')
 kb.add(button_1)
 kb.add(button_2)
 
+inline_kb = InlineKeyboardMarkup()
+inline_button_1 = InlineKeyboardButton(text='Рассчитать норму калорий', callback_data='calories')
+inline_button_2 = InlineKeyboardButton(text='Формулы расчёта', callback_data='formulas')
+inline_kb.add(inline_button_1)
+inline_kb.add(inline_button_2)
+
 
 class UserState(StatesGroup):
     age = State()
@@ -22,9 +29,24 @@ class UserState(StatesGroup):
     weight = State()
 
 
+@dp.message_handler(commands=['start'])
+async def start(message):
+    await message.answer('Привет! Я бот помогающий твоему здоровью')
+    await message.answer('Чтобы посчитать калории нажмите Рассчитать', reply_markup=kb)
+
+
 @dp.message_handler(text=['Рассчитать'])
-async def set_age(message):
-    await message.answer('Введите свой возраст:')
+async def main_menu(message):
+    await message.answer('Выберете опцию:', reply_markup=inline_kb)
+
+@dp.callback_query_handler(text='formulas')
+async def get_formulas(call):
+    await call.message.answer('для женщин: 10 x вес (кг) + 6,25 x рост (см) – 5 x возраст (г) – 161')
+
+
+@dp.callback_query_handler(text=['calories'])
+async def set_age(call):
+    await call.message.answer('Введите свой возраст:')
     await UserState.age.set()
 
 
@@ -55,11 +77,6 @@ async def send_calories(message, state):
  
  для мужчин: 10 х вес (кг) + 6,25 x рост (см) – 5 х возраст (г) + 5;
  для женщин: 10 x вес (кг) + 6,25 x рост (см) – 5 x возраст (г) – 161.'''
-
-
-@dp.message_handler(commands=['start'])
-async def start(message):
-    await message.answer('Привет! Я бот помогающий твоему здоровью', reply_markup=kb)
 
 
 @dp.message_handler()

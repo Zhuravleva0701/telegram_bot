@@ -34,15 +34,10 @@ async def main_menu(message):
 
 @dp.message_handler(text=['Купить'])
 async def get_buying_list(message):
-    with open('files/Product1.jpg', 'rb') as img1:
-        await message.answer_photo(img1, 'Название: Product1| Описание: описание Product1 | Цена: 100')
-    with open('files/Product2.jpg', 'rb') as img2:
-        await message.answer_photo(img2, 'Название: Product2| Описание: описание Product2 | Цена: 200')
-    with open('files/Product3.jpg', 'rb') as img3:
-        await message.answer_photo(img3, 'Название: Product3| Описание: описание Product3 | Цена: 300')
-    with open('files/Product4.jpg', 'rb') as img4:
-        await message.answer_photo(img4, 'Название: Product4| Описание: описание Product4 | Цена: 400')
-    await message.answer("Выберите продукт для покупки:", reply_markup=buy_inline_kb)
+    for i in range(4):
+        with open(f'files/Product{i+1}.jpg', 'rb') as img:
+            await message.answer_photo(img, f'Название: {product_list[i]} | Описание: {descriptions_list[i]} | Цена: {(i+1)*100} $')
+    await message.answer("Выберете продукт для покупки:", reply_markup=buy_inline_kb)
 
 @dp.callback_query_handler(text='product_buying')
 async def send_confirm_message(call):

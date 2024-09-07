@@ -15,6 +15,7 @@ def initiate_db():
     connection.commit()
     connection.close()
 
+initiate_db()
 
 def get_all_products():
     connection = sqlite3.connect('Products.db')

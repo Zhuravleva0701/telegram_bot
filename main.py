@@ -7,8 +7,10 @@ from aiogram.dispatcher import FSMContext
 
 import asyncio
 
+import crud_functions
 from config import *
 from keybords import *
+from crud_functions import *
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API)
@@ -34,9 +36,10 @@ async def main_menu(message):
 
 @dp.message_handler(text=['Купить'])
 async def get_buying_list(message):
-    for i in range(4):
-        with open(f'files/Product{i+1}.jpg', 'rb') as img:
-            await message.answer_photo(img, f'Название: {product_list[i]} | Описание: {descriptions_list[i]} | Цена: {(i+1)*100} $')
+    products = crud_functions.get_all_products()
+    for product in products:
+        with open(f'files/Product{product[0]}.jpg', 'rb') as img:
+            await message.answer_photo(img, f'Название: {product[1]} | Описание: {product[2]} | Цена: {product[3]} $')
     await message.answer("Выберете продукт для покупки:", reply_markup=buy_inline_kb)
 
 @dp.callback_query_handler(text='product_buying')

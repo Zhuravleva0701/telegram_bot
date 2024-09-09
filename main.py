@@ -7,7 +7,6 @@ from aiogram.dispatcher import FSMContext
 
 import asyncio
 
-import crud_functions
 from config import *
 from keybords import *
 from crud_functions import *

@@ -7,6 +7,7 @@ from aiogram.dispatcher import FSMContext
 
 import asyncio
 
+import crud_functions
 from config import *
 from keybords import *
 from crud_functions import *
@@ -20,6 +21,45 @@ class UserState(StatesGroup):
     age = State()
     growth = State()
     weight = State()
+
+
+class RegistrationState(StatesGroup):
+    username = State()
+    email = State()
+    age = State()
+    balance = State('1000')
+
+
+@dp.message_handler(text=['Регистрация'])
+async def sing_up(message):
+    await message.answer('Введите имя пользователя (только латинский алфавит):')
+    await RegistrationState.username.set()
+
+
+@dp.message_handler(state=RegistrationState.username)
+async def set_username(message, state):
+    if crud_functions.is_included(message.text):
+        await message.answer('Пользователь существует, введите другое имя:')
+        await RegistrationState.username.set()
+    else:
+        await message.answer('Введите свой email:')
+        await RegistrationState.email.set()
+
+
+@dp.message_handler(state=RegistrationState.email)
+async def set_email(message, state):
+    await state.update_data(email=message.text)
+    await message.answer('Введите свой возраст:')
+    await RegistrationState.age.set()
+
+
+@dp.message_handler(state=RegistrationState.age)
+async def set_age(message, state):
+    await state.update_data(age=int(message.text))
+    data = await state.get_data()
+    crud_functions.add_user(data['username'], data['email'], data['age'])
+    await message.answer('Пользователь зарегистрирован!')
+    await state.finish()
 
 
 @dp.message_handler(commands=['start'])
@@ -40,6 +80,7 @@ async def get_buying_list(message):
         with open(f'files/Product{product[0]}.jpg', 'rb') as img:
             await message.answer_photo(img, f'Название: {product[1]} | Описание: {product[2]} | Цена: {product[3]} $')
     await message.answer("Выберете продукт для покупки:", reply_markup=buy_inline_kb)
+
 
 @dp.callback_query_handler(text='product_buying')
 async def send_confirm_message(call):

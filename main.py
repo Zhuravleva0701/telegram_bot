@@ -42,6 +42,7 @@ async def set_username(message, state):
         await message.answer('Пользователь существует, введите другое имя:')
         await RegistrationState.username.set()
     else:
+        await state.update_data(username=message.text)
         await message.answer('Введите свой email:')
         await RegistrationState.email.set()
 
